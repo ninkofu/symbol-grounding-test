@@ -1,0 +1,16 @@
+# Core dependencies for the symbol grounding test project
+#
+# The versions below are indicative; adjust as needed when building
+# a fully working system.  Some packages (e.g. torch, diffusers)
+# are heavy and may not install in minimal environments; they are
+# included here to signal intent rather than being strictly required
+# for the current stubs.
+
+torch>=2.0
+numpy>=1.23
+Pillow>=9.0
+# diffusers and transformers would be needed to connect to a real
+# diffusion backend and LLM models, but are optional for the
+# placeholder implementation.  Uncomment when ready.
+# diffusers>=0.20
+# transformers>=4.28
