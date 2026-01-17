@@ -1,0 +1,30 @@
+{
+  "name": "locality_demo",
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 30,
+    "guidance_scale": 7.5,
+    "device": "auto",
+    "seed_list": [0, 42]
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "cases": [
+    {
+      "base_prompt": "a red cat on a table",
+      "edits": [
+        {
+          "target": "obj1",
+          "edit_prompt": "a blue cat",
+          "negative_prompt": null,
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    }
+  ]
+}

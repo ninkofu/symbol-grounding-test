@@ -1,0 +1,95 @@
+{
+  "summary": {
+    "results_jsonl": "outputs/experiments/locality_demo_20260118_000427/results.jsonl",
+    "n_rows": 2,
+    "n_skipped": 0,
+    "skipped_reasons": {},
+    "outside_mean_abs_diff": {
+      "n": 2.0,
+      "mean": 0.018912416882812977,
+      "median": 0.018912416882812977,
+      "min": 0.01737910695374012,
+      "max": 0.020445726811885834
+    },
+    "outside_frac_changed": {
+      "n": 2.0,
+      "mean": 0.08438369812753035,
+      "median": 0.08438369812753035,
+      "min": 0.061582742914979755,
+      "max": 0.10718465334008097
+    },
+    "inside_mean_abs_diff": {
+      "n": 2.0,
+      "mean": 0.1300710067152977,
+      "median": 0.1300710067152977,
+      "min": 0.12574484944343567,
+      "max": 0.13439716398715973
+    },
+    "inside_frac_changed": {
+      "n": 2.0,
+      "mean": 0.6190374410377358,
+      "median": 0.6190374410377358,
+      "min": 0.5797096108490566,
+      "max": 0.6583652712264151
+    },
+    "top_worst_by_outside_mean_abs_diff": [
+      {
+        "case": 0,
+        "seed": 0,
+        "edit_index": 0,
+        "target": "obj1",
+        "outside_mean_abs_diff": 0.020445726811885834,
+        "outside_frac_changed": 0.10718465334008097,
+        "base_image": "outputs/experiments/locality_demo_20260118_000427/case_000_seed000/base/image.png",
+        "edited": "outputs/experiments/locality_demo_20260118_000427/case_000_seed000/edits/edit_000/edited.png"
+      },
+      {
+        "case": 0,
+        "seed": 42,
+        "edit_index": 0,
+        "target": "obj1",
+        "outside_mean_abs_diff": 0.01737910695374012,
+        "outside_frac_changed": 0.061582742914979755,
+        "base_image": "outputs/experiments/locality_demo_20260118_000427/case_000_seed042/base/image.png",
+        "edited": "outputs/experiments/locality_demo_20260118_000427/case_000_seed042/edits/edit_000/edited.png"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "case": 0,
+      "seed": 0,
+      "edit_index": 0,
+      "target": "obj1",
+      "base_prompt": "a red cat on a table",
+      "base_image": "outputs/experiments/locality_demo_20260118_000427/case_000_seed000/base/image.png",
+      "edited": "outputs/experiments/locality_demo_20260118_000427/case_000_seed000/edits/edit_000/edited.png",
+      "mask": "outputs/experiments/locality_demo_20260118_000427/case_000_seed000/edits/edit_000/mask.png",
+      "metrics_path": "outputs/experiments/locality_demo_20260118_000427/case_000_seed000/edits/edit_000/metrics.json",
+      "outside_mean_abs_diff": 0.020445726811885834,
+      "outside_mean_sq_diff": 0.0009930931264534593,
+      "outside_frac_changed": 0.10718465334008097,
+      "inside_mean_abs_diff": 0.12574484944343567,
+      "inside_frac_changed": 0.5797096108490566,
+      "threshold": 0.0392156862745098
+    },
+    {
+      "case": 0,
+      "seed": 42,
+      "edit_index": 0,
+      "target": "obj1",
+      "base_prompt": "a red cat on a table",
+      "base_image": "outputs/experiments/locality_demo_20260118_000427/case_000_seed042/base/image.png",
+      "edited": "outputs/experiments/locality_demo_20260118_000427/case_000_seed042/edits/edit_000/edited.png",
+      "mask": "outputs/experiments/locality_demo_20260118_000427/case_000_seed042/edits/edit_000/mask.png",
+      "metrics_path": "outputs/experiments/locality_demo_20260118_000427/case_000_seed042/edits/edit_000/metrics.json",
+      "outside_mean_abs_diff": 0.01737910695374012,
+      "outside_mean_sq_diff": 0.0007042494835332036,
+      "outside_frac_changed": 0.061582742914979755,
+      "inside_mean_abs_diff": 0.13439716398715973,
+      "inside_frac_changed": 0.6583652712264151,
+      "threshold": 0.0392156862745098
+    }
+  ],
+  "skipped": []
+}

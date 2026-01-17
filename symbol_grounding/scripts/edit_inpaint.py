@@ -25,6 +25,9 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--negative-prompt", default=None, help="Negative prompt (optional)")
     parser.add_argument("--auto-mask-from-prompt", action="store_true", help="Generate mask from prompt + target object")
     parser.add_argument("--target", default=None, help="Target object id (e.g., obj1) for auto mask")
+    parser.add_argument("--mask-pad-px", type=int, default=0, help="Pad auto mask bbox in pixels")
+    parser.add_argument("--mask-blur", type=float, default=0.0, help="Gaussian blur radius for auto mask")
+    parser.add_argument("--list-objects", action="store_true", help="List detected objects and exit")
     parser.add_argument("--out", "--output-dir", dest="output_dir", default="outputs", help="Output directory")
     parser.add_argument("--model", dest="model_id", default="runwayml/stable-diffusion-inpainting", help="Inpainting model id")
     parser.add_argument("--seed", type=int, default=0, help="Random seed")
@@ -41,6 +44,39 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[list[str]] = None) -> None:
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    if args.list_objects:
+        try:
+            from ..scene_graph import parse_text
+            from ..layout import generate_layout
+        except Exception as exc:
+            print(f"[ERROR] Failed to import layout utilities: {exc}", file=sys.stderr)
+            sys.exit(1)
+
+        layout_prompt = args.base_prompt or args.prompt
+        try:
+            scene_graph = parse_text(layout_prompt)
+            layout = generate_layout(scene_graph)
+            for obj in scene_graph.objects:
+                bbox = layout.boxes.get(obj.id)
+                attrs = (
+                    "{"
+                    + ",".join(f"{k}={v}" for k, v in obj.attributes.items())
+                    + "}"
+                    if obj.attributes
+                    else "{}"
+                )
+                if bbox is None:
+                    bbox_str = "bbox=(missing)"
+                else:
+                    bbox_str = (
+                        f"bbox=(x={bbox.x:.2f},y={bbox.y:.2f},w={bbox.width:.2f},h={bbox.height:.2f})"
+                    )
+                print(f"{obj.id}: {obj.noun} attrs={attrs} {bbox_str}")
+            return
+        except Exception as exc:
+            print(f"[ERROR] Failed to list objects: {exc}", file=sys.stderr)
+            sys.exit(1)
 
     if not os.path.exists(args.image):
         print(f"[ERROR] Input image not found: {args.image}", file=sys.stderr)
@@ -72,7 +108,12 @@ def main(argv: Optional[list[str]] = None) -> None:
         try:
             scene_graph = parse_text(layout_prompt)
             layout = generate_layout(scene_graph)
-            mask_image = layout_to_mask(layout, target_id=args.target)
+            mask_image = layout_to_mask(
+                layout,
+                target_id=args.target,
+                pad_px=args.mask_pad_px,
+                blur=args.mask_blur,
+            )
         except Exception as exc:
             print(f"[ERROR] Failed to auto-generate mask: {exc}", file=sys.stderr)
             sys.exit(1)

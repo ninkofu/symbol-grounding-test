@@ -7,7 +7,7 @@ from typing import Dict, Tuple, Union
 from .utils import SceneGraph, Layout, BoundingBox
 
 try:
-    from PIL import Image, ImageDraw  # type: ignore
+    from PIL import Image, ImageDraw, ImageFilter  # type: ignore
     _PIL_AVAILABLE = True
 except ImportError:  # pragma: no cover
     _PIL_AVAILABLE = False
@@ -68,6 +68,8 @@ def layout_to_mask(
     layout: Layout,
     target_id: Union[str, list[str]],
     image_size: Union[int, Tuple[int, int]] = 512,
+    pad_px: int = 0,
+    blur: float = 0.0,
 ) -> "Image.Image":
     """Create a binary mask for target object ids (white = edit region)."""
     if not _PIL_AVAILABLE:
@@ -91,14 +93,25 @@ def layout_to_mask(
         if obj_id not in target_ids:
             continue
         found = True
-        x0 = int(bbox.x * width)
-        y0 = int(bbox.y * height)
-        x1 = int((bbox.x + bbox.width) * width)
-        y1 = int((bbox.y + bbox.height) * height)
+        x0 = int(bbox.x * width) - pad_px
+        y0 = int(bbox.y * height) - pad_px
+        x1 = int((bbox.x + bbox.width) * width) + pad_px
+        y1 = int((bbox.y + bbox.height) * height) + pad_px
+
+        x0 = max(0, min(x0, width - 1))
+        y0 = max(0, min(y0, height - 1))
+        x1 = max(0, min(x1, width - 1))
+        y1 = max(0, min(y1, height - 1))
+
+        if x1 <= x0 or y1 <= y0:
+            continue
         draw.rectangle([x0, y0, x1, y1], fill=255)
 
     if not found:
         raise ValueError(f"Target object id(s) not found in layout: {sorted(target_ids)}")
+
+    if blur > 0.0:
+        img = img.filter(ImageFilter.GaussianBlur(radius=blur))
 
     return img
 
@@ -108,9 +121,11 @@ def save_layout_mask(
     target_id: Union[str, list[str]],
     output_path: str = "outputs/mask.png",
     image_size: Union[int, Tuple[int, int]] = 512,
+    pad_px: int = 0,
+    blur: float = 0.0,
 ) -> str:
     """Save a binary mask for target object ids to disk."""
-    img = layout_to_mask(layout, target_id=target_id, image_size=image_size)
+    img = layout_to_mask(layout, target_id=target_id, image_size=image_size, pad_px=pad_px, blur=blur)
     out_dir = os.path.dirname(output_path) or "."
     os.makedirs(out_dir, exist_ok=True)
     img.save(output_path)

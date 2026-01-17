@@ -1,0 +1,12 @@
+{
+  "outside_mean_abs_diff": 0.7004843354225159,
+  "outside_mean_sq_diff": 0.5496962070465088,
+  "outside_frac_changed": 0.9976673203441295,
+  "inside_mean_abs_diff": 0.690477728843689,
+  "inside_frac_changed": 0.9990860849056604,
+  "image_size": [
+    512,
+    512
+  ],
+  "threshold": 0.0392156862745098
+}

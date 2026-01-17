@@ -120,6 +120,25 @@ python -m symbol_grounding.scripts.make_mask_from_layout \
   --out outputs/mask.png
 ```
 
+List candidate objects from the prompt:
+
+```
+python -m symbol_grounding.scripts.make_mask_from_layout \
+  --prompt "a red cat on a table" \
+  --list-objects
+```
+
+Mask quality options (pad + blur):
+
+```
+python -m symbol_grounding.scripts.make_mask_from_layout \
+  --prompt "a red cat on a table" \
+  --target obj1 \
+  --out outputs/mask.png \
+  --mask-pad-px 8 \
+  --mask-blur 8
+```
+
 Auto-generate a mask during editing (no mask file required):
 
 ```
@@ -129,8 +148,60 @@ python -m symbol_grounding.scripts.edit_inpaint \
   --base-prompt "a cat on a table" \
   --auto-mask-from-prompt \
   --target obj1 \
+  --mask-pad-px 8 \
+  --mask-blur 8 \
   --out outputs/
 ```
+
+## Locality evaluation
+
+Compute mask leakage metrics between before/after images:
+
+```
+python -m symbol_grounding.scripts.eval_locality \
+  --before outputs/base.png \
+  --after outputs/edited.png \
+  --mask outputs/mask.png \
+  --out outputs/metrics.json \
+  --save-diff outputs/diff.png
+```
+
+With uv:
+
+```
+uv run -m symbol_grounding.scripts.eval_locality \
+  --before outputs/base.png \
+  --after outputs/edited.png \
+  --mask outputs/mask.png \
+  --out outputs/metrics.json
+```
+
+## Experiment harness
+
+Run a batch experiment from a JSON config:
+
+```
+uv run -m symbol_grounding.scripts.run_experiment \
+  --config configs/experiments/locality_demo.json \
+  --out outputs/experiments/
+```
+
+Optional flags:
+
+```
+uv run -m symbol_grounding.scripts.run_experiment \
+  --config configs/experiments/locality_demo.json \
+  --out outputs/experiments/ \
+  --skip-generate
+```
+
+## Typical workflow
+
+1) Generate a base image (`generate_diffusion`)
+2) Create a mask (`make_mask_from_layout`) or auto-mask in `edit_inpaint`
+3) Edit the image (`edit_inpaint`)
+4) Evaluate leakage (`eval_locality`)
+5) Or run all in one batch (`run_experiment`)
 
 ## Slot Attention training
 
