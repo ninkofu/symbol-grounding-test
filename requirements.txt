@@ -9,8 +9,8 @@
 torch>=2.0
 numpy>=1.23
 Pillow>=9.0
-# diffusers and transformers would be needed to connect to a real
-# diffusion backend and LLM models, but are optional for the
-# placeholder implementation.  Uncomment when ready.
-# diffusers>=0.20
-# transformers>=4.28
+# Diffusion backend dependencies
+diffusers>=0.24
+transformers>=4.35
+accelerate>=0.23
+safetensors>=0.3

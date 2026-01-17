@@ -1,0 +1,5 @@
+[console_scripts]
+sg-edit-inpaint = symbol_grounding.scripts.edit_inpaint:main
+sg-generate = symbol_grounding.scripts.generate_image:main
+sg-generate-diffusion = symbol_grounding.scripts.generate_diffusion:main
+sg-make-mask = symbol_grounding.scripts.make_mask_from_layout:main
