@@ -1,0 +1,1 @@
+# symbol-grounding-test
