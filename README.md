@@ -224,6 +224,22 @@ uv run -m symbol_grounding.scripts.eval_semantic \
   --out outputs/semantic.json
 ```
 
+## Disentangled VAE (synthetic shapes)
+
+Train a beta-VAE with explicit shape/color/position partitions using synthetic shapes:
+
+```
+python -m symbol_grounding.train.disentangled_vae_train --config configs/disentangled_vae.json
+```
+
+With uv:
+
+```
+uv run -m symbol_grounding.train.disentangled_vae_train --config configs/disentangled_vae.json
+```
+
+Training writes reconstructions and latent traversals to `outputs/disentangled_vae/samples`.
+
 ## Experiment harness
 
 Run a batch experiment from a JSON config:
