@@ -224,6 +224,72 @@ uv run -m symbol_grounding.scripts.eval_semantic \
   --out outputs/semantic.json
 ```
 
+## Disentangled VAE (synthetic shapes)
+
+Train a beta-VAE with explicit shape/color/position partitions using synthetic shapes:
+
+```
+python -m symbol_grounding.train.disentangled_vae_train --config configs/disentangled_vae.json
+```
+
+With uv:
+
+```
+uv run -m symbol_grounding.train.disentangled_vae_train --config configs/disentangled_vae.json
+```
+
+Training writes reconstructions and latent traversals to `outputs/disentangled_vae/samples`.
+
+Evaluate a saved checkpoint:
+
+```
+python -m symbol_grounding.scripts.eval_disentangled_vae \
+  --checkpoint outputs/disentangled_vae/checkpoints/model_final.pt \
+  --config configs/disentangled_vae.json \
+  --out outputs/disentangled_vae/metrics.json
+```
+
+With uv:
+
+```
+uv run -m symbol_grounding.scripts.eval_disentangled_vae \
+  --checkpoint outputs/disentangled_vae/checkpoints/model_final.pt \
+  --config configs/disentangled_vae.json \
+  --out outputs/disentangled_vae/metrics.json
+```
+
+## Disentangled VAE (real images)
+
+Train on real images from a folder (unsupervised attributes):
+
+```
+python -m symbol_grounding.train.disentangled_vae_train --config configs/disentangled_vae_real.json
+```
+
+The dataset expects images under `inputs/real_images`.
+
+## Grounded diffusion with attention locks
+
+Run diffusion with layout control and optional Prompt-to-Prompt attention locking:
+
+```
+python -m symbol_grounding.scripts.generate_grounded_diffusion \
+  --prompt "a red cat on a table" \
+  --base-prompt "a cat on a table" \
+  --lock-token cat \
+  --controlnet-model lllyasviel/sd-controlnet-scribble \
+  --control-mode scribble \
+  --out outputs/
+```
+
+## Slot + Typed Slots + TPR pipeline
+
+Run the integration pipeline on random inputs to verify the module wiring:
+
+```
+python -m symbol_grounding.scripts.run_slot_tpr_pipeline --batch 2 --image-size 64 --num-slots 7
+```
+
 ## Experiment harness
 
 Run a batch experiment from a JSON config:
