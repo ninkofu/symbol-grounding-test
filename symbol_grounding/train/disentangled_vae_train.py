@@ -134,8 +134,10 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
 
     outputs_root = output_dir or config.get("outputs_dir", "outputs/disentangled_vae")
     sample_dir = os.path.join(outputs_root, "samples")
+    checkpoint_dir = os.path.join(outputs_root, "checkpoints")
     log_every = train_cfg.get("log_every", 50)
     sample_every = train_cfg.get("sample_every", 200)
+    save_every = train_cfg.get("save_every", 500)
     epochs = train_cfg.get("epochs", 10)
 
     beta = train_cfg.get("beta", 4.0)
@@ -189,7 +191,28 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
                 _save_traversal(sample_dir, global_step, model, output["z"], 0, label="shape")
                 _save_traversal(sample_dir, global_step, model, output["z"], cfg.shape_dim, label="color")
 
+            if global_step % save_every == 0:
+                os.makedirs(checkpoint_dir, exist_ok=True)
+                torch.save(
+                    {
+                        "model_state": model.state_dict(),
+                        "config": model_cfg.__dict__,
+                        "step": global_step,
+                    },
+                    os.path.join(checkpoint_dir, f"checkpoint_{global_step:06d}.pt"),
+                )
+
             global_step += 1
+
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    torch.save(
+        {
+            "model_state": model.state_dict(),
+            "config": model_cfg.__dict__,
+            "step": global_step,
+        },
+        os.path.join(checkpoint_dir, "model_final.pt"),
+    )
 
 
 def main(argv: Optional[list[str]] = None) -> None:

@@ -28,6 +28,12 @@
     "position_weight": 1.0,
     "log_every": 50,
     "sample_every": 200,
+    "save_every": 500,
+    "num_workers": 0
+  },
+  "eval": {
+    "batch_size": 64,
+
     "num_workers": 0
   }
 }

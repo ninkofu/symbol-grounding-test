@@ -240,6 +240,25 @@ uv run -m symbol_grounding.train.disentangled_vae_train --config configs/disenta
 
 Training writes reconstructions and latent traversals to `outputs/disentangled_vae/samples`.
 
+Evaluate a saved checkpoint:
+
+```
+python -m symbol_grounding.scripts.eval_disentangled_vae \
+  --checkpoint outputs/disentangled_vae/checkpoints/model_final.pt \
+  --config configs/disentangled_vae.json \
+  --out outputs/disentangled_vae/metrics.json
+```
+
+With uv:
+
+```
+uv run -m symbol_grounding.scripts.eval_disentangled_vae \
+  --checkpoint outputs/disentangled_vae/checkpoints/model_final.pt \
+  --config configs/disentangled_vae.json \
+  --out outputs/disentangled_vae/metrics.json
+```
+
+
 ## Experiment harness
 
 Run a batch experiment from a JSON config:
