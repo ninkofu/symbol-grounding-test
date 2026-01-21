@@ -1,0 +1,20 @@
+{
+  "base_prompt": "a red cat on a table",
+  "seed": 42,
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 30,
+    "guidance_scale": 7.5,
+    "device": "auto"
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "generated_paths": {
+    "image": "outputs/suites/demo/locality_demo_20260118_053536/case_000_seed042/base/a_red_cat_on_a_table_20260118_053613_seed42.png",
+    "control": "outputs/suites/demo/locality_demo_20260118_053536/case_000_seed042/base/a_red_cat_on_a_table_20260118_053613_seed42_control.png"
+  }
+}

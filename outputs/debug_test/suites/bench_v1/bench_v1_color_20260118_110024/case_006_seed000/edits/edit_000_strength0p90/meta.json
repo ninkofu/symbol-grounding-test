@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a black mug on a desk",
+  "edit_base_prompt": "a mug on a desk",
+  "generate_prompt": "a black mug on a desk",
+  "layout_prompt": "a black mug on a desk",
+  "edit_prompt": "a white mug",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "mug",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "mug",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.9,
+  "semantic_text": "a white mug",
+  "semantic_neg_text": "a black mug"
+}

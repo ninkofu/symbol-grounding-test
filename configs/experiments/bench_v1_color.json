@@ -1,0 +1,198 @@
+{
+  "name": "bench_v1_color",
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 20,
+    "guidance_scale": 7.5,
+    "device": "auto",
+    "seed_list": [0]
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "eval": {
+    "threshold": 0.0392156862745098,
+    "save_viz": true,
+    "semantic": {
+      "enabled": true,
+      "model_id": "openai/clip-vit-base-patch32",
+      "device": "auto",
+      "pad_px": 8
+    }
+  },
+  "cases": [
+    {
+      "base_prompt": "a red cat on a table",
+      "generate_prompt": "a red cat on a table",
+      "edit_base_prompt": "a cat on a table",
+      "layout_prompt": "a red cat on a table",
+      "edits": [
+        {
+          "target_noun": "cat",
+          "edit_prompt": "a blue cat",
+          "semantic_text": "a blue cat",
+          "semantic_neg_text": "a red cat",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a green dog in a park",
+      "generate_prompt": "a green dog in a park",
+      "edit_base_prompt": "a dog in a park",
+      "layout_prompt": "a green dog in a park",
+      "edits": [
+        {
+          "target_noun": "dog",
+          "edit_prompt": "a yellow dog",
+          "semantic_text": "a yellow dog",
+          "semantic_neg_text": "a green dog",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a blue car on a road",
+      "generate_prompt": "a blue car on a road",
+      "edit_base_prompt": "a car on a road",
+      "layout_prompt": "a blue car on a road",
+      "edits": [
+        {
+          "target_noun": "car",
+          "edit_prompt": "a red car",
+          "semantic_text": "a red car",
+          "semantic_neg_text": "a blue car",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a yellow apple on a plate",
+      "generate_prompt": "a yellow apple on a plate",
+      "edit_base_prompt": "an apple on a plate",
+      "layout_prompt": "a yellow apple on a plate",
+      "edits": [
+        {
+          "target_noun": "apple",
+          "edit_prompt": "a green apple",
+          "semantic_text": "a green apple",
+          "semantic_neg_text": "a yellow apple",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a purple bicycle leaning against a wall",
+      "generate_prompt": "a purple bicycle leaning against a wall",
+      "edit_base_prompt": "a bicycle leaning against a wall",
+      "layout_prompt": "a purple bicycle leaning against a wall",
+      "edits": [
+        {
+          "target_noun": "bicycle",
+          "edit_prompt": "an orange bicycle",
+          "semantic_text": "an orange bicycle",
+          "semantic_neg_text": "a purple bicycle",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a brown chair in a room",
+      "generate_prompt": "a brown chair in a room",
+      "edit_base_prompt": "a chair in a room",
+      "layout_prompt": "a brown chair in a room",
+      "edits": [
+        {
+          "target_noun": "chair",
+          "edit_prompt": "a white chair",
+          "semantic_text": "a white chair",
+          "semantic_neg_text": "a brown chair",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a black mug on a desk",
+      "generate_prompt": "a black mug on a desk",
+      "edit_base_prompt": "a mug on a desk",
+      "layout_prompt": "a black mug on a desk",
+      "edits": [
+        {
+          "target_noun": "mug",
+          "edit_prompt": "a white mug",
+          "semantic_text": "a white mug",
+          "semantic_neg_text": "a black mug",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a pink flower in a vase",
+      "generate_prompt": "a pink flower in a vase",
+      "edit_base_prompt": "a flower in a vase",
+      "layout_prompt": "a pink flower in a vase",
+      "edits": [
+        {
+          "target_noun": "flower",
+          "edit_prompt": "a blue flower",
+          "semantic_text": "a blue flower",
+          "semantic_neg_text": "a pink flower",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a gray laptop on a table",
+      "generate_prompt": "a gray laptop on a table",
+      "edit_base_prompt": "a laptop on a table",
+      "layout_prompt": "a gray laptop on a table",
+      "edits": [
+        {
+          "target_noun": "laptop",
+          "edit_prompt": "a silver laptop",
+          "semantic_text": "a silver laptop",
+          "semantic_neg_text": "a gray laptop",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    },
+    {
+      "base_prompt": "a red ball on the floor",
+      "generate_prompt": "a red ball on the floor",
+      "edit_base_prompt": "a ball on the floor",
+      "layout_prompt": "a red ball on the floor",
+      "edits": [
+        {
+          "target_noun": "ball",
+          "edit_prompt": "a green ball",
+          "semantic_text": "a green ball",
+          "semantic_neg_text": "a red ball",
+          "strength_list": [0.3, 0.6, 0.9],
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    }
+  ]
+}

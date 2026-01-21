@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a red ball on the floor",
+  "edit_base_prompt": "a ball on the floor",
+  "generate_prompt": "a red ball on the floor",
+  "layout_prompt": "a red ball on the floor",
+  "edit_prompt": "a green ball",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "ball",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "ball",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.9,
+  "semantic_text": "a green ball",
+  "semantic_neg_text": "a red ball"
+}

@@ -150,6 +150,7 @@ python -m symbol_grounding.scripts.edit_inpaint \
   --target obj1 \
   --mask-pad-px 8 \
   --mask-blur 8 \
+  --strength 0.3 \
   --out outputs/
 ```
 
@@ -176,6 +177,34 @@ uv run -m symbol_grounding.scripts.eval_locality \
   --out outputs/metrics.json
 ```
 
+Interpret leakage using a **null baseline** (edit_prompt empty) and compare the adjusted metrics
+(outside_edit - outside_null). The experiment harness writes both metrics and the aggregator computes *_adj.
+
+## Semantic evaluation
+
+Evaluate semantic success on the edited region using CLIP:
+
+```
+uv run -m symbol_grounding.scripts.eval_semantic \
+  --after outputs/edited.png \
+  --mask outputs/mask.png \
+  --text "a blue cat" \
+  --out outputs/semantic.json
+```
+
+Semantic evaluation reuses cached CLIP models during batch runs for speed.
+
+Optional margin (positive vs negative text):
+
+```
+uv run -m symbol_grounding.scripts.eval_semantic \
+  --after outputs/edited.png \
+  --mask outputs/mask.png \
+  --text "a blue cat" \
+  --neg-text "a red cat" \
+  --out outputs/semantic.json
+```
+
 ## Experiment harness
 
 Run a batch experiment from a JSON config:
@@ -184,6 +213,90 @@ Run a batch experiment from a JSON config:
 uv run -m symbol_grounding.scripts.run_experiment \
   --config configs/experiments/locality_demo.json \
   --out outputs/experiments/
+```
+
+Aggregate metrics (baseline-aware):
+
+```
+uv run -m symbol_grounding.scripts.aggregate_locality \
+  --results outputs/experiments/<experiment_dir>
+```
+
+Strength sweep: use `strength_list` in the experiment config. The aggregator will emit
+`summary_by_strength` with baseline-adjusted metrics.
+
+Semantic metrics can be enabled via:
+
+```
+"eval": {
+  "threshold": 0.0392156862745098,
+  "semantic": { "enabled": true, "model_id": "openai/clip-vit-base-patch32", "device": "auto", "pad_px": 8 }
+}
+```
+
+Semantic baselines use the SAME text for edited/null by default. You can override per edit:
+
+```
+{
+  "edit_prompt": "a blue cat",
+  "semantic_text": "a blue cat",
+  "semantic_neg_text": "a red cat"
+}
+```
+
+The aggregator will add `clip_similarity_delta_raw`, `clip_similarity_delta_clipped`
+(and `clip_margin_*` if neg text is provided), and include them in `summary_by_strength`.
+It also emits a `pareto_front` list for leakage vs semantic gain trade-offs.
+
+Semantic-enabled demo config:
+
+```
+uv run -m symbol_grounding.scripts.run_experiment \
+  --config configs/experiments/locality_semantic_demo.json \
+  --out outputs/experiments/
+```
+
+For more stable edits, you can split prompts:
+`generate_prompt` for base image generation and `edit_base_prompt` for inpaint conditioning.
+This avoids contradictions like "red cat" + "blue cat" in the same inpaint prompt.
+
+## Experiment suites
+
+Run multiple experiment configs and auto-aggregate:
+
+```
+uv run -m symbol_grounding.scripts.run_suite \
+  --configs-dir configs/experiments \
+  --out outputs/experiments_suites/suite_YYYYMMDD \
+  --pattern "locality_*demo.json" \
+  --aggregate
+```
+
+Benchmark v1 (color edits):
+
+```
+uv run -m symbol_grounding.scripts.run_suite \
+  --configs-dir configs/experiments \
+  --out outputs/suites/bench_v1 \
+  --pattern "bench_v1_color.json" \
+  --aggregate
+```
+
+Plot suite results (Pareto + strength sweep) and emit CSVs:
+
+```
+uv run -m symbol_grounding.scripts.plot_suite \
+  --suite-index outputs/experiments_suites/suite_YYYYMMDD/suite_index.json \
+  --out outputs/experiments_suites/suite_YYYYMMDD/plots
+```
+
+Generate a visual markdown report:
+
+```
+uv run -m symbol_grounding.scripts.report_suite \
+  --suite-index outputs/suites/bench_v1/suite_index.json \
+  --out outputs/suites/bench_v1/report \
+  --topk 5
 ```
 
 Optional flags:
@@ -201,7 +314,14 @@ uv run -m symbol_grounding.scripts.run_experiment \
 2) Create a mask (`make_mask_from_layout`) or auto-mask in `edit_inpaint`
 3) Edit the image (`edit_inpaint`)
 4) Evaluate leakage (`eval_locality`)
-5) Or run all in one batch (`run_experiment`)
+5) Aggregate with baseline-adjusted metrics (`aggregate_locality`)
+6) Or run all in one batch (`run_experiment`)
+
+## Recommended research workflow
+
+1) `run_suite` (batch configs)
+2) `aggregate_locality` (auto when `--aggregate` is set)
+3) `plot_suite` (pareto + strength sweep)
 
 ## Slot Attention training
 

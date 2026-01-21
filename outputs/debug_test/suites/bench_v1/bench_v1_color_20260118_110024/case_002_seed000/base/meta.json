@@ -1,0 +1,23 @@
+{
+  "base_prompt": "a blue car on a road",
+  "generate_prompt": "a blue car on a road",
+  "edit_base_prompt": "a car on a road",
+  "layout_prompt": "a blue car on a road",
+  "seed": 0,
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 20,
+    "guidance_scale": 7.5,
+    "device": "auto"
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "generated_paths": {
+    "image": "outputs/suites/bench_v1/bench_v1_color_20260118_110024/case_002_seed000/base/a_blue_car_on_a_road_20260118_110111_seed0.png",
+    "control": "outputs/suites/bench_v1/bench_v1_color_20260118_110024/case_002_seed000/base/a_blue_car_on_a_road_20260118_110111_seed0_control.png"
+  }
+}

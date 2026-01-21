@@ -13,6 +13,15 @@
     "controlnet_scale": 1.0,
     "control_mode": "scribble"
   },
+  "eval": {
+    "threshold": 0.0392156862745098,
+    "semantic": {
+      "enabled": false,
+      "model_id": "openai/clip-vit-base-patch32",
+      "device": "auto",
+      "pad_px": 8
+    }
+  },
   "cases": [
     {
       "base_prompt": "a red cat on a table",
@@ -21,6 +30,7 @@
           "target": "obj1",
           "edit_prompt": "a blue cat",
           "negative_prompt": null,
+          "strength_list": [0.3, 0.6, 0.9],
           "mask_pad_px": 8,
           "mask_blur": 8.0
         }

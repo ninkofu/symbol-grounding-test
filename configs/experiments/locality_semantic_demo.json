@@ -1,0 +1,42 @@
+{
+  "name": "locality_semantic_demo",
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 20,
+    "guidance_scale": 7.5,
+    "device": "auto",
+    "seed_list": [0]
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "eval": {
+    "threshold": 0.0392156862745098,
+    "semantic": {
+      "enabled": true,
+      "model_id": "openai/clip-vit-base-patch32",
+      "device": "auto",
+      "pad_px": 8
+    }
+  },
+  "cases": [
+    {
+      "base_prompt": "a red cat on a table",
+      "edits": [
+        {
+          "target": "obj1",
+          "edit_prompt": "a blue cat",
+          "semantic_text": "a blue cat",
+          "semantic_neg_text": "a red cat",
+          "negative_prompt": null,
+          "strength": 0.6,
+          "mask_pad_px": 8,
+          "mask_blur": 8.0
+        }
+      ]
+    }
+  ]
+}

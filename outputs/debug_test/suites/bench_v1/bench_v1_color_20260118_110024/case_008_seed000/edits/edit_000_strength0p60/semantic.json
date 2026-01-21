@@ -1,0 +1,15 @@
+{
+  "clip_similarity": 0.2569417357444763,
+  "crop_box": [
+    0,
+    0,
+    273,
+    512
+  ],
+  "model_id": "openai/clip-vit-base-patch32",
+  "device": "cuda",
+  "text": "a silver laptop",
+  "neg_text": "a gray laptop",
+  "clip_similarity_neg": 0.27524763345718384,
+  "clip_margin": -0.01830589771270752
+}

@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a yellow apple on a plate",
+  "edit_base_prompt": "an apple on a plate",
+  "generate_prompt": "a yellow apple on a plate",
+  "layout_prompt": "a yellow apple on a plate",
+  "edit_prompt": "a green apple",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "apple",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "apple",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.3,
+  "semantic_text": "a green apple",
+  "semantic_neg_text": "a yellow apple"
+}

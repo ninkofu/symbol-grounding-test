@@ -1,0 +1,2 @@
+experiment,case,seed,edit_index,target,strength,outside_mean_abs_diff_adj,outside_frac_changed_adj,semantic_delta_raw,base_image,edited,null_edited
+locality_semantic_demo,0,0,0,obj1,0.6,3.066845238208771e-05,0.0010200531376518274,-7.288157939910889e-05,outputs/suites/demo/locality_semantic_demo_20260118_053634/case_000_seed000/base/image.png,outputs/suites/demo/locality_semantic_demo_20260118_053634/case_000_seed000/edits/edit_000_strength0p60/edited.png,outputs/suites/demo/locality_semantic_demo_20260118_053634/case_000_seed000/edits/edit_000_strength0p60/null/edited.png

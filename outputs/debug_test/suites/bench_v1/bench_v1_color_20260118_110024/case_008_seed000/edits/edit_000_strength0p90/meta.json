@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a gray laptop on a table",
+  "edit_base_prompt": "a laptop on a table",
+  "generate_prompt": "a gray laptop on a table",
+  "layout_prompt": "a gray laptop on a table",
+  "edit_prompt": "a silver laptop",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "laptop",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "laptop",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.9,
+  "semantic_text": "a silver laptop",
+  "semantic_neg_text": "a gray laptop"
+}

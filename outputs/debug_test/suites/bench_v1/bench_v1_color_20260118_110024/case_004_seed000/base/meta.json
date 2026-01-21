@@ -1,0 +1,23 @@
+{
+  "base_prompt": "a purple bicycle leaning against a wall",
+  "generate_prompt": "a purple bicycle leaning against a wall",
+  "edit_base_prompt": "a bicycle leaning against a wall",
+  "layout_prompt": "a purple bicycle leaning against a wall",
+  "seed": 0,
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 20,
+    "guidance_scale": 7.5,
+    "device": "auto"
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "generated_paths": {
+    "image": "outputs/suites/bench_v1/bench_v1_color_20260118_110024/case_004_seed000/base/a_purple_bicycle_leaning_20260118_110150_seed0.png",
+    "control": "outputs/suites/bench_v1/bench_v1_color_20260118_110024/case_004_seed000/base/a_purple_bicycle_leaning_20260118_110150_seed0_control.png"
+  }
+}

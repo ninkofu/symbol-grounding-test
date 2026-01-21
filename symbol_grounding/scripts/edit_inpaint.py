@@ -23,6 +23,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="(Deprecated) Alias for --base-prompt. Will not be used as negative prompt.",
     )
     parser.add_argument("--negative-prompt", default=None, help="Negative prompt (optional)")
+    parser.add_argument("--strength", type=float, default=0.75, help="Inpaint strength (0..1)")
     parser.add_argument("--auto-mask-from-prompt", action="store_true", help="Generate mask from prompt + target object")
     parser.add_argument("--target", default=None, help="Target object id (e.g., obj1) for auto mask")
     parser.add_argument("--mask-pad-px", type=int, default=0, help="Pad auto mask bbox in pixels")
@@ -44,6 +45,10 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[list[str]] = None) -> None:
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    if not (0.0 <= args.strength <= 1.0):
+        print("[ERROR] --strength must be between 0 and 1.", file=sys.stderr)
+        sys.exit(1)
 
     if args.list_objects:
         try:
@@ -125,6 +130,7 @@ def main(argv: Optional[list[str]] = None) -> None:
         edit_prompt=args.prompt,
         base_prompt=base_prompt,
         negative_prompt=args.negative_prompt,
+        strength=args.strength,
         seed=args.seed,
         steps=args.steps,
         guidance_scale=args.guidance_scale,

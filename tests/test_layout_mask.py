@@ -14,7 +14,7 @@ class TestLayoutMask(unittest.TestCase):
         layout = Layout(boxes={"obj1": BoundingBox(x=0.25, y=0.25, width=0.5, height=0.5)})
         mask_small = layout_to_mask(layout, target_id="obj1", image_size=64, pad_px=0)
         mask_padded = layout_to_mask(layout, target_id="obj1", image_size=64, pad_px=8)
-        self.assertGreater(sum(mask_padded.getdata()), sum(mask_small.getdata()))
+        self.assertGreater(sum(mask_padded.tobytes()), sum(mask_small.tobytes()))
 
     def test_mask_blur_keeps_size(self) -> None:
         layout = Layout(boxes={"obj1": BoundingBox(x=0.1, y=0.1, width=0.3, height=0.3)})

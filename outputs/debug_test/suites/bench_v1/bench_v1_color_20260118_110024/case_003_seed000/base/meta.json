@@ -1,0 +1,23 @@
+{
+  "base_prompt": "a yellow apple on a plate",
+  "generate_prompt": "a yellow apple on a plate",
+  "edit_base_prompt": "an apple on a plate",
+  "layout_prompt": "a yellow apple on a plate",
+  "seed": 0,
+  "model": {
+    "model_id": "runwayml/stable-diffusion-v1-5",
+    "steps": 20,
+    "guidance_scale": 7.5,
+    "device": "auto"
+  },
+  "controlnet": {
+    "enabled": false,
+    "controlnet_model_id": "lllyasviel/sd-controlnet-scribble",
+    "controlnet_scale": 1.0,
+    "control_mode": "scribble"
+  },
+  "generated_paths": {
+    "image": "outputs/suites/bench_v1/bench_v1_color_20260118_110024/case_003_seed000/base/a_yellow_apple_on_a_plat_20260118_110131_seed0.png",
+    "control": "outputs/suites/bench_v1/bench_v1_color_20260118_110024/case_003_seed000/base/a_yellow_apple_on_a_plat_20260118_110131_seed0_control.png"
+  }
+}

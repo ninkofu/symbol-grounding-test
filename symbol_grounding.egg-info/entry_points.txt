@@ -4,4 +4,7 @@ sg-eval-locality = symbol_grounding.scripts.eval_locality:main
 sg-generate = symbol_grounding.scripts.generate_image:main
 sg-generate-diffusion = symbol_grounding.scripts.generate_diffusion:main
 sg-make-mask = symbol_grounding.scripts.make_mask_from_layout:main
+sg-plot-suite = symbol_grounding.scripts.plot_suite:main
+sg-report-suite = symbol_grounding.scripts.report_suite:main
 sg-run-experiment = symbol_grounding.scripts.run_experiment:main
+sg-run-suite = symbol_grounding.scripts.run_suite:main

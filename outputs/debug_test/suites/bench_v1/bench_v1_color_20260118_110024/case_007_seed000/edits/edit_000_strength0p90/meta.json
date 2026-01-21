@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a pink flower in a vase",
+  "edit_base_prompt": "a flower in a vase",
+  "generate_prompt": "a pink flower in a vase",
+  "layout_prompt": "a pink flower in a vase",
+  "edit_prompt": "a blue flower",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "flower",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "flower",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.9,
+  "semantic_text": "a blue flower",
+  "semantic_neg_text": "a pink flower"
+}

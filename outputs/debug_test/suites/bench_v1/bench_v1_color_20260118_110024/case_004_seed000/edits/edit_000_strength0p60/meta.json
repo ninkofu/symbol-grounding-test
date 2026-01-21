@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a purple bicycle leaning against a wall",
+  "edit_base_prompt": "a bicycle leaning against a wall",
+  "generate_prompt": "a purple bicycle leaning against a wall",
+  "layout_prompt": "a purple bicycle leaning against a wall",
+  "edit_prompt": "an orange bicycle",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "bicycle",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "bicycle",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.6,
+  "semantic_text": "an orange bicycle",
+  "semantic_neg_text": "a purple bicycle"
+}

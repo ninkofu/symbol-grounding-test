@@ -1,0 +1,145 @@
+{
+  "summary": {
+    "results_jsonl": "outputs/experiments/locality_demo_20260118_033431/results.jsonl",
+    "n_rows": 2,
+    "n_skipped": 0,
+    "skipped_reasons": {},
+    "outside_mean_abs_diff": {
+      "n": 2.0,
+      "mean": 0.019178001210093498,
+      "median": 0.019178001210093498,
+      "min": 0.0157003216445446,
+      "max": 0.022655680775642395
+    },
+    "outside_frac_changed": {
+      "n": 2.0,
+      "mean": 0.08768503289473684,
+      "median": 0.08768503289473684,
+      "min": 0.05482192560728745,
+      "max": 0.12054814018218624
+    },
+    "outside_mean_abs_diff_adj": {
+      "n": 2.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "outside_frac_changed_adj": {
+      "n": 2.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "inside_mean_abs_diff": {
+      "n": 2.0,
+      "mean": 0.064216747879982,
+      "median": 0.064216747879982,
+      "min": 0.055204711854457855,
+      "max": 0.07322878390550613
+    },
+    "inside_frac_changed": {
+      "n": 2.0,
+      "mean": 0.49750884433962267,
+      "median": 0.49750884433962267,
+      "min": 0.4853405070754717,
+      "max": 0.5096771816037736
+    },
+    "top_worst_by_outside_mean_abs_diff": [
+      {
+        "case": 0,
+        "seed": 0,
+        "edit_index": 0,
+        "target": "obj1",
+        "outside_mean_abs_diff": 0.022655680775642395,
+        "outside_frac_changed": 0.12054814018218624,
+        "base_image": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/base/image.png",
+        "edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/edited.png"
+      },
+      {
+        "case": 0,
+        "seed": 42,
+        "edit_index": 0,
+        "target": "obj1",
+        "outside_mean_abs_diff": 0.0157003216445446,
+        "outside_frac_changed": 0.05482192560728745,
+        "base_image": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/base/image.png",
+        "edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/edited.png"
+      }
+    ],
+    "top_worst_by_outside_mean_abs_diff_adj": [
+      {
+        "case": 0,
+        "seed": 0,
+        "edit_index": 0,
+        "target": "obj1",
+        "outside_mean_abs_diff_adj": 0.0,
+        "outside_frac_changed_adj": 0.0,
+        "base_image": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/base/image.png",
+        "edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/edited.png",
+        "null_edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/null/edited.png"
+      },
+      {
+        "case": 0,
+        "seed": 42,
+        "edit_index": 0,
+        "target": "obj1",
+        "outside_mean_abs_diff_adj": 0.0,
+        "outside_frac_changed_adj": 0.0,
+        "base_image": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/base/image.png",
+        "edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/edited.png",
+        "null_edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/null/edited.png"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "case": 0,
+      "seed": 0,
+      "edit_index": 0,
+      "target": "obj1",
+      "base_prompt": "a red cat on a table",
+      "base_image": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/base/image.png",
+      "edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/edited.png",
+      "mask": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/mask.png",
+      "metrics_path": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/metrics.json",
+      "outside_mean_abs_diff": 0.022655680775642395,
+      "outside_mean_sq_diff": 0.0012716699857264757,
+      "outside_frac_changed": 0.12054814018218624,
+      "inside_mean_abs_diff": 0.07322878390550613,
+      "inside_frac_changed": 0.5096771816037736,
+      "threshold": 0.0392156862745098,
+      "null_edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/null/edited.png",
+      "null_metrics_path": "outputs/experiments/locality_demo_20260118_033431/case_000_seed000/edits/edit_000/null/metrics.json",
+      "null_outside_mean_abs_diff": 0.022715158760547638,
+      "null_outside_frac_changed": 0.12065093623481782,
+      "outside_mean_abs_diff_adj": 0.0,
+      "outside_frac_changed_adj": 0.0
+    },
+    {
+      "case": 0,
+      "seed": 42,
+      "edit_index": 0,
+      "target": "obj1",
+      "base_prompt": "a red cat on a table",
+      "base_image": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/base/image.png",
+      "edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/edited.png",
+      "mask": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/mask.png",
+      "metrics_path": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/metrics.json",
+      "outside_mean_abs_diff": 0.0157003216445446,
+      "outside_mean_sq_diff": 0.0006403936422429979,
+      "outside_frac_changed": 0.05482192560728745,
+      "inside_mean_abs_diff": 0.055204711854457855,
+      "inside_frac_changed": 0.4853405070754717,
+      "threshold": 0.0392156862745098,
+      "null_edited": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/null/edited.png",
+      "null_metrics_path": "outputs/experiments/locality_demo_20260118_033431/case_000_seed042/edits/edit_000/null/metrics.json",
+      "null_outside_mean_abs_diff": 0.01572575978934765,
+      "null_outside_frac_changed": 0.05487727732793522,
+      "outside_mean_abs_diff_adj": 0.0,
+      "outside_frac_changed_adj": 0.0
+    }
+  ],
+  "skipped": []
+}

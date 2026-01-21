@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a green dog in a park",
+  "edit_base_prompt": "a dog in a park",
+  "generate_prompt": "a green dog in a park",
+  "layout_prompt": "a green dog in a park",
+  "edit_prompt": "a yellow dog",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "dog",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "dog",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.3,
+  "semantic_text": "a yellow dog",
+  "semantic_neg_text": "a green dog"
+}

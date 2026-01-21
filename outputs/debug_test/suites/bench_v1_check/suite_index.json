@@ -1,0 +1,19 @@
+{
+  "suite_root": "outputs/suites/bench_v1_check",
+  "configs_dir": "configs/experiments",
+  "pattern": "bench_v1_color.json",
+  "aggregate": true,
+  "dry_run": true,
+  "created_at": "2026-01-18T11:00:03",
+  "entries": [
+    {
+      "config_path": "configs/experiments/bench_v1_color.json",
+      "experiment_name": "bench_v1_color",
+      "experiment_dir": null,
+      "summary_json": null,
+      "summary_csv": null,
+      "status": "dry-run",
+      "error": null
+    }
+  ]
+}

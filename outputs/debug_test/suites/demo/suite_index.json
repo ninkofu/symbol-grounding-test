@@ -1,0 +1,28 @@
+{
+  "suite_root": "outputs/suites/demo",
+  "configs_dir": "configs/experiments",
+  "pattern": "locality_*demo.json",
+  "aggregate": true,
+  "dry_run": false,
+  "created_at": "2026-01-18T05:36:46",
+  "entries": [
+    {
+      "config_path": "configs/experiments/locality_demo.json",
+      "experiment_name": "locality_demo",
+      "experiment_dir": "outputs/suites/demo/locality_demo_20260118_053536",
+      "summary_json": "outputs/suites/demo/locality_demo_20260118_053536/locality_summary.json",
+      "summary_csv": "outputs/suites/demo/locality_demo_20260118_053536/locality_summary.csv",
+      "status": "ok",
+      "error": null
+    },
+    {
+      "config_path": "configs/experiments/locality_semantic_demo.json",
+      "experiment_name": "locality_semantic_demo",
+      "experiment_dir": "outputs/suites/demo/locality_semantic_demo_20260118_053634",
+      "summary_json": "outputs/suites/demo/locality_semantic_demo_20260118_053634/locality_summary.json",
+      "summary_csv": "outputs/suites/demo/locality_semantic_demo_20260118_053634/locality_summary.csv",
+      "status": "ok",
+      "error": null
+    }
+  ]
+}

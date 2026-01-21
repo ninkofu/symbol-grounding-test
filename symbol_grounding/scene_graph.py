@@ -8,7 +8,9 @@ from .utils import SceneGraph, SceneObject
 
 KNOWN_NOUNS = {
     "cat", "dog", "ball", "table", "chair", "flower", "tree", "bird",
-    "car", "bicycle", "cup", "person", "human", "girl", "boy", "book",
+    "car", "bicycle", "cup", "mug", "apple", "laptop",
+    "person", "human", "girl", "boy", "book",
+    "plate", "road", "park", "wall", "room", "desk", "vase",
 }
 
 COLOR_ADJECTIVES = {

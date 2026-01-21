@@ -64,8 +64,10 @@ class InpaintEditor(Editor):
             request.width, request.height = image.size
 
         generator = torch.Generator(device=device).manual_seed(request.seed)
-        if request.base_prompt:
+        if request.base_prompt and request.edit_prompt:
             prompt = f"{request.base_prompt}, {request.edit_prompt}"
+        elif request.base_prompt:
+            prompt = request.base_prompt
         else:
             prompt = request.edit_prompt
 
@@ -75,6 +77,7 @@ class InpaintEditor(Editor):
                 image=image,
                 mask_image=mask,
                 negative_prompt=request.negative_prompt,
+                strength=request.strength,
                 num_inference_steps=request.steps,
                 guidance_scale=request.guidance_scale,
                 height=request.height,

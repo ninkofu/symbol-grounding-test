@@ -1,0 +1,18 @@
+{
+  "base_prompt": "a brown chair in a room",
+  "edit_base_prompt": "a chair in a room",
+  "generate_prompt": "a brown chair in a room",
+  "layout_prompt": "a brown chair in a room",
+  "edit_prompt": "a white chair",
+  "negative_prompt": null,
+  "target": null,
+  "target_noun": "chair",
+  "target_id_resolved": "obj1",
+  "target_noun_resolved": "chair",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 0,
+  "strength": 0.9,
+  "semantic_text": "a white chair",
+  "semantic_neg_text": "a brown chair"
+}

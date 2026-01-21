@@ -55,6 +55,18 @@ def _safe_float(x: Any) -> Optional[float]:
         return None
 
 
+def _delta_raw(value: Optional[float], baseline: Optional[float]) -> Optional[float]:
+    if value is None or baseline is None:
+        return None
+    return value - baseline
+
+
+def _delta_clipped(delta: Optional[float]) -> Optional[float]:
+    if delta is None:
+        return None
+    return max(0.0, float(delta))
+
+
 def _summarize(values: List[float]) -> Dict[str, float]:
     if not values:
         return {"n": 0, "mean": 0.0, "median": 0.0, "min": 0.0, "max": 0.0}
@@ -65,6 +77,52 @@ def _summarize(values: List[float]) -> Dict[str, float]:
         "min": float(min(values)),
         "max": float(max(values)),
     }
+
+
+def _summarize_focus(values: List[float]) -> Dict[str, float]:
+    if not values:
+        return {"n": 0, "mean": 0.0, "median": 0.0}
+    return {
+        "n": float(len(values)),
+        "mean": float(mean(values)),
+        "median": float(median(values)),
+    }
+
+
+def _semantic_delta_for_pareto(row: Dict[str, Any]) -> Optional[float]:
+    margin_delta = row.get("clip_margin_delta_raw")
+    if margin_delta is not None:
+        return float(margin_delta)
+    sim_delta = row.get("clip_similarity_delta_raw")
+    if sim_delta is not None:
+        return float(sim_delta)
+    return None
+
+
+def _pareto_front(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    candidates: List[Tuple[float, float, Dict[str, Any]]] = []
+    for r in rows:
+        outside = r.get("outside_mean_abs_diff_adj")
+        if outside is None:
+            continue
+        semantic = _semantic_delta_for_pareto(r)
+        if semantic is None:
+            continue
+        candidates.append((float(outside), float(semantic), r))
+
+    front: List[Dict[str, Any]] = []
+    for i, (outside_i, semantic_i, row_i) in enumerate(candidates):
+        dominated = False
+        for j, (outside_j, semantic_j, _) in enumerate(candidates):
+            if i == j:
+                continue
+            if outside_j <= outside_i and semantic_j >= semantic_i:
+                if outside_j < outside_i or semantic_j > semantic_i:
+                    dominated = True
+                    break
+        if not dominated:
+            front.append(row_i)
+    return front
 
 
 def _default_out_paths(results_jsonl: Path) -> Tuple[Path, Path]:
@@ -160,6 +218,15 @@ def main(argv: Optional[List[str]] = None) -> None:
         mask_p = Path(mask)
         metrics_p = Path(metrics_path) if metrics_path else None
 
+        null_info = rec.get("null") if isinstance(rec.get("null"), dict) else {}
+        null_edited = null_info.get("edited") if isinstance(null_info, dict) else None
+        null_metrics_path = null_info.get("metrics") if isinstance(null_info, dict) else None
+        null_p = Path(null_edited) if null_edited else None
+        null_metrics_p = Path(null_metrics_path) if null_metrics_path else None
+
+        semantic_metrics = rec.get("semantic_metrics") if isinstance(rec.get("semantic_metrics"), dict) else None
+        null_semantic_metrics = rec.get("null_semantic_metrics") if isinstance(rec.get("null_semantic_metrics"), dict) else None
+
         # Existence checks
         missing = [str(p) for p in [base_p, edited_p, mask_p] if not p.exists()]
         if missing:
@@ -206,7 +273,21 @@ def main(argv: Optional[List[str]] = None) -> None:
             )
             continue
 
+        if null_p is not None and not _is_within(null_p, case_dir):
+            skipped.append(
+                {
+                    "reason": "null_outside_case_dir",
+                    "case_dir": str(case_dir),
+                    "null_edited": str(null_p),
+                    "case": rec.get("case"),
+                    "seed": rec.get("seed"),
+                    "edit_index": rec.get("edit_index"),
+                }
+            )
+            continue
+
         metrics: Optional[Dict[str, Any]] = None
+        null_metrics: Optional[Dict[str, Any]] = None
 
         # Prefer: metrics.json on disk > embedded rec["metrics"]
         if not args.recompute:
@@ -217,6 +298,14 @@ def main(argv: Optional[List[str]] = None) -> None:
                     metrics = None
             if metrics is None and isinstance(rec.get("metrics"), dict):
                 metrics = rec.get("metrics")
+
+            if null_metrics_p and null_metrics_p.exists():
+                try:
+                    null_metrics = _read_json(null_metrics_p)
+                except Exception:
+                    null_metrics = None
+            if null_metrics is None and isinstance(rec.get("null_metrics"), dict):
+                null_metrics = rec.get("null_metrics")
 
         if metrics is None:
             if evaluate_locality is None:
@@ -251,23 +340,105 @@ def main(argv: Optional[List[str]] = None) -> None:
                 out_path=out_path,
             )
 
+        if null_metrics is None and null_p is not None:
+            if evaluate_locality is None and not args.recompute:
+                null_metrics = None
+            else:
+                thr = args.threshold
+                if thr is None:
+                    thr = 10 / 255
+
+                out_path = None
+                if args.write_metrics and null_metrics_p is not None:
+                    out_path = str(null_metrics_p)
+
+                null_metrics = evaluate_locality(
+                    before_path=str(base_p),
+                    after_path=str(null_p),
+                    mask_path=str(mask_p),
+                    threshold=float(thr),
+                    out_path=out_path,
+                )
+
         # Flatten key fields for CSV
+        outside_mean_abs = _safe_float(metrics.get("outside_mean_abs_diff"))
+        outside_frac = _safe_float(metrics.get("outside_frac_changed"))
+        null_outside_mean_abs = _safe_float(null_metrics.get("outside_mean_abs_diff")) if null_metrics else None
+        null_outside_frac = _safe_float(null_metrics.get("outside_frac_changed")) if null_metrics else None
+
+        clip_similarity = _safe_float(semantic_metrics.get("clip_similarity")) if semantic_metrics else None
+        null_clip_similarity = (
+            _safe_float(null_semantic_metrics.get("clip_similarity")) if null_semantic_metrics else None
+        )
+        clip_similarity_delta_raw = _delta_raw(clip_similarity, null_clip_similarity)
+        clip_similarity_delta_clipped = _delta_clipped(clip_similarity_delta_raw)
+        clip_similarity_adj = clip_similarity_delta_clipped
+
+        clip_margin = _safe_float(semantic_metrics.get("clip_margin")) if semantic_metrics else None
+        null_clip_margin = _safe_float(null_semantic_metrics.get("clip_margin")) if null_semantic_metrics else None
+        clip_margin_delta_raw = _delta_raw(clip_margin, null_clip_margin)
+        clip_margin_delta_clipped = _delta_clipped(clip_margin_delta_raw)
+
+        outside_mean_abs_adj = None
+        outside_frac_adj = None
+        if outside_mean_abs is not None and null_outside_mean_abs is not None:
+            outside_mean_abs_adj = max(0.0, outside_mean_abs - null_outside_mean_abs)
+        if outside_frac is not None and null_outside_frac is not None:
+            outside_frac_adj = max(0.0, outside_frac - null_outside_frac)
+
+        outside_mean_abs_delta_raw = _delta_raw(outside_mean_abs, null_outside_mean_abs)
+        outside_mean_abs_delta_clipped = _delta_clipped(outside_mean_abs_delta_raw)
+        outside_frac_delta_raw = _delta_raw(outside_frac, null_outside_frac)
+        outside_frac_delta_clipped = _delta_clipped(outside_frac_delta_raw)
+
         row: Dict[str, Any] = {
             "case": rec.get("case"),
             "seed": rec.get("seed"),
             "edit_index": rec.get("edit_index"),
             "target": rec.get("target"),
+            "target_id_spec": rec.get("target_id_spec"),
+            "target_noun_spec": rec.get("target_noun_spec"),
+            "target_id_resolved": rec.get("target_id_resolved"),
+            "target_noun_resolved": rec.get("target_noun_resolved"),
+            "strength": rec.get("strength"),
             "base_prompt": rec.get("base_prompt"),
+            "generate_prompt": rec.get("generate_prompt"),
+            "edit_base_prompt": rec.get("edit_base_prompt"),
+            "layout_prompt": rec.get("layout_prompt"),
             "base_image": str(base_p),
             "edited": str(edited_p),
             "mask": str(mask_p),
             "metrics_path": str(metrics_p) if metrics_p else "",
-            "outside_mean_abs_diff": _safe_float(metrics.get("outside_mean_abs_diff")),
+            "skipped_reason": rec.get("skipped_reason"),
+            "outside_mean_abs_diff": outside_mean_abs,
+            "outside_mean_abs_diff_raw": outside_mean_abs,
+            "outside_mean_abs_diff_null": null_outside_mean_abs,
+            "outside_mean_abs_diff_delta_raw": outside_mean_abs_delta_raw,
+            "outside_mean_abs_diff_delta_clipped": outside_mean_abs_delta_clipped,
             "outside_mean_sq_diff": _safe_float(metrics.get("outside_mean_sq_diff")),
-            "outside_frac_changed": _safe_float(metrics.get("outside_frac_changed")),
+            "outside_frac_changed": outside_frac,
+            "outside_frac_changed_raw": outside_frac,
+            "outside_frac_changed_null": null_outside_frac,
+            "outside_frac_changed_delta_raw": outside_frac_delta_raw,
+            "outside_frac_changed_delta_clipped": outside_frac_delta_clipped,
             "inside_mean_abs_diff": _safe_float(metrics.get("inside_mean_abs_diff")),
             "inside_frac_changed": _safe_float(metrics.get("inside_frac_changed")),
             "threshold": _safe_float(metrics.get("threshold")),
+            "null_edited": str(null_p) if null_p else "",
+            "null_metrics_path": str(null_metrics_p) if null_metrics_p else "",
+            "null_outside_mean_abs_diff": null_outside_mean_abs,
+            "null_outside_frac_changed": null_outside_frac,
+            "outside_mean_abs_diff_adj": outside_mean_abs_adj,
+            "outside_frac_changed_adj": outside_frac_adj,
+            "clip_similarity": clip_similarity,
+            "null_clip_similarity": null_clip_similarity,
+            "clip_similarity_delta_raw": clip_similarity_delta_raw,
+            "clip_similarity_delta_clipped": clip_similarity_delta_clipped,
+            "clip_similarity_adj": clip_similarity_adj,
+            "clip_margin": clip_margin,
+            "null_clip_margin": null_clip_margin,
+            "clip_margin_delta_raw": clip_margin_delta_raw,
+            "clip_margin_delta_clipped": clip_margin_delta_clipped,
         }
         rows.append(row)
 
@@ -281,12 +452,36 @@ def main(argv: Optional[List[str]] = None) -> None:
         "seed",
         "edit_index",
         "target",
+        "strength",
         "outside_mean_abs_diff",
+        "outside_mean_abs_diff_raw",
+        "outside_mean_abs_diff_null",
+        "outside_mean_abs_diff_delta_raw",
+        "outside_mean_abs_diff_delta_clipped",
         "outside_mean_sq_diff",
         "outside_frac_changed",
+        "outside_frac_changed_raw",
+        "outside_frac_changed_null",
+        "outside_frac_changed_delta_raw",
+        "outside_frac_changed_delta_clipped",
         "inside_mean_abs_diff",
         "inside_frac_changed",
         "threshold",
+        "null_outside_mean_abs_diff",
+        "null_outside_frac_changed",
+        "outside_mean_abs_diff_adj",
+        "outside_frac_changed_adj",
+        "clip_similarity",
+        "null_clip_similarity",
+        "clip_similarity_delta_raw",
+        "clip_similarity_delta_clipped",
+        "clip_similarity_adj",
+        "clip_margin",
+        "null_clip_margin",
+        "clip_margin_delta_raw",
+        "clip_margin_delta_clipped",
+        "null_edited",
+        "null_metrics_path",
         "base_image",
         "edited",
         "mask",
@@ -307,9 +502,30 @@ def main(argv: Optional[List[str]] = None) -> None:
         "skipped_reasons": {},
         "outside_mean_abs_diff": _summarize([r["outside_mean_abs_diff"] for r in rows if r["outside_mean_abs_diff"] is not None]),
         "outside_frac_changed": _summarize([r["outside_frac_changed"] for r in rows if r["outside_frac_changed"] is not None]),
+        "outside_mean_abs_diff_adj": _summarize([r["outside_mean_abs_diff_adj"] for r in rows if r["outside_mean_abs_diff_adj"] is not None]),
+        "outside_frac_changed_adj": _summarize([r["outside_frac_changed_adj"] for r in rows if r["outside_frac_changed_adj"] is not None]),
         "inside_mean_abs_diff": _summarize([r["inside_mean_abs_diff"] for r in rows if r["inside_mean_abs_diff"] is not None]),
         "inside_frac_changed": _summarize([r["inside_frac_changed"] for r in rows if r["inside_frac_changed"] is not None]),
         "top_worst_by_outside_mean_abs_diff": [],
+        "top_worst_by_outside_mean_abs_diff_adj": [],
+        "summary_by_strength": {},
+        "clip_similarity": _summarize([r["clip_similarity"] for r in rows if r["clip_similarity"] is not None]),
+        "clip_similarity_delta_raw": _summarize(
+            [r["clip_similarity_delta_raw"] for r in rows if r["clip_similarity_delta_raw"] is not None]
+        ),
+        "clip_similarity_delta_clipped": _summarize(
+            [r["clip_similarity_delta_clipped"] for r in rows if r["clip_similarity_delta_clipped"] is not None]
+        ),
+        "clip_similarity_adj": _summarize([r["clip_similarity_adj"] for r in rows if r["clip_similarity_adj"] is not None]),
+        "clip_margin": _summarize([r["clip_margin"] for r in rows if r["clip_margin"] is not None]),
+        "clip_margin_delta_raw": _summarize(
+            [r["clip_margin_delta_raw"] for r in rows if r["clip_margin_delta_raw"] is not None]
+        ),
+        "clip_margin_delta_clipped": _summarize(
+            [r["clip_margin_delta_clipped"] for r in rows if r["clip_margin_delta_clipped"] is not None]
+        ),
+        "top_best_by_clip_delta_raw": [],
+        "pareto_front": [],
     }
 
     # Count skipped reasons
@@ -337,6 +553,111 @@ def main(argv: Optional[List[str]] = None) -> None:
         }
         for r in worst
     ]
+
+    worst_adj = sorted(
+        [r for r in rows if r["outside_mean_abs_diff_adj"] is not None],
+        key=lambda r: float(r["outside_mean_abs_diff_adj"]),
+        reverse=True,
+    )[: max(0, int(args.topk))]
+    summary["top_worst_by_outside_mean_abs_diff_adj"] = [
+        {
+            "case": r["case"],
+            "seed": r["seed"],
+            "edit_index": r["edit_index"],
+            "target": r["target"],
+            "outside_mean_abs_diff_adj": r["outside_mean_abs_diff_adj"],
+            "outside_frac_changed_adj": r["outside_frac_changed_adj"],
+            "base_image": r["base_image"],
+            "edited": r["edited"],
+            "null_edited": r["null_edited"],
+        }
+        for r in worst_adj
+    ]
+
+    best_clip = sorted(
+        [r for r in rows if r["clip_similarity_delta_raw"] is not None],
+        key=lambda r: float(r["clip_similarity_delta_raw"]),
+        reverse=True,
+    )[: max(0, int(args.topk))]
+    summary["top_best_by_clip_delta_raw"] = [
+        {
+            "case": r["case"],
+            "seed": r["seed"],
+            "edit_index": r["edit_index"],
+            "target": r["target"],
+            "strength": r["strength"],
+            "clip_similarity_delta_raw": r["clip_similarity_delta_raw"],
+            "clip_similarity_delta_clipped": r["clip_similarity_delta_clipped"],
+            "outside_mean_abs_diff_adj": r["outside_mean_abs_diff_adj"],
+            "outside_frac_changed_adj": r["outside_frac_changed_adj"],
+            "base_image": r["base_image"],
+            "edited": r["edited"],
+            "null_edited": r["null_edited"],
+        }
+        for r in best_clip
+    ]
+
+    pareto_rows = _pareto_front(rows)
+    summary["pareto_front"] = [
+        {
+            "case": r["case"],
+            "seed": r["seed"],
+            "edit_index": r["edit_index"],
+            "target": r["target"],
+            "strength": r["strength"],
+            "outside_mean_abs_diff_adj": r["outside_mean_abs_diff_adj"],
+            "outside_frac_changed_adj": r["outside_frac_changed_adj"],
+            "clip_similarity_delta_raw": r["clip_similarity_delta_raw"],
+            "clip_similarity_delta_clipped": r["clip_similarity_delta_clipped"],
+            "clip_margin_delta_raw": r.get("clip_margin_delta_raw"),
+            "clip_margin_delta_clipped": r.get("clip_margin_delta_clipped"),
+            "paths": {
+                "base_image": r["base_image"],
+                "edited": r["edited"],
+                "null_edited": r["null_edited"],
+            },
+        }
+        for r in pareto_rows
+    ]
+
+    # Summary by strength
+    grouped: Dict[str, List[Dict[str, Any]]] = {}
+    for r in rows:
+        if r.get("strength") is None:
+            continue
+        key = f"{float(r['strength']):.2f}"
+        grouped.setdefault(key, []).append(r)
+
+    for key, group in grouped.items():
+        summary["summary_by_strength"][key] = {
+            "outside_mean_abs_diff_adj": _summarize_focus(
+                [g["outside_mean_abs_diff_adj"] for g in group if g["outside_mean_abs_diff_adj"] is not None]
+            ),
+            "outside_frac_changed_adj": _summarize_focus(
+                [g["outside_frac_changed_adj"] for g in group if g["outside_frac_changed_adj"] is not None]
+            ),
+            "inside_mean_abs_diff": _summarize_focus(
+                [g["inside_mean_abs_diff"] for g in group if g["inside_mean_abs_diff"] is not None]
+            ),
+            "clip_similarity_adj": _summarize_focus(
+                [g["clip_similarity_adj"] for g in group if g["clip_similarity_adj"] is not None]
+            ),
+            "clip_similarity_delta_raw": _summarize_focus(
+                [g["clip_similarity_delta_raw"] for g in group if g["clip_similarity_delta_raw"] is not None]
+            ),
+            "clip_similarity_delta_clipped": _summarize_focus(
+                [g["clip_similarity_delta_clipped"] for g in group if g["clip_similarity_delta_clipped"] is not None]
+            ),
+            "clip_margin_delta_raw": _summarize_focus(
+                [g["clip_margin_delta_raw"] for g in group if g["clip_margin_delta_raw"] is not None]
+            ),
+            "clip_margin_delta_clipped": _summarize_focus(
+                [g["clip_margin_delta_clipped"] for g in group if g["clip_margin_delta_clipped"] is not None]
+            ),
+            "clip_similarity": _summarize_focus(
+                [g["clip_similarity"] for g in group if g["clip_similarity"] is not None]
+            ),
+        }
 
     with out_json.open("w", encoding="utf-8") as f:
         json.dump(

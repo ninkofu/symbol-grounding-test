@@ -1,0 +1,4 @@
+experiment,strength,outside_mean_abs_diff_adj_mean,semantic_delta_mean
+locality_demo,0.30,1.1360272765159607e-05,
+locality_demo,0.60,0.0001010233536362648,
+locality_demo,0.90,0.0,

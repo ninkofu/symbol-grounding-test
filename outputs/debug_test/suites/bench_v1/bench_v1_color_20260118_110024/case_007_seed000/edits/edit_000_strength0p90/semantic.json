@@ -1,0 +1,15 @@
+{
+  "clip_similarity": 0.2418893277645111,
+  "crop_box": [
+    0,
+    0,
+    273,
+    512
+  ],
+  "model_id": "openai/clip-vit-base-patch32",
+  "device": "cuda",
+  "text": "a blue flower",
+  "neg_text": "a pink flower",
+  "clip_similarity_neg": 0.26175716519355774,
+  "clip_margin": -0.01986783742904663
+}

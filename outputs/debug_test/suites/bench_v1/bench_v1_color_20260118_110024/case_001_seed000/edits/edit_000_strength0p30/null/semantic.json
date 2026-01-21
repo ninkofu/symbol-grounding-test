@@ -1,0 +1,15 @@
+{
+  "clip_similarity": 0.28972768783569336,
+  "crop_box": [
+    0,
+    0,
+    273,
+    512
+  ],
+  "model_id": "openai/clip-vit-base-patch32",
+  "device": "cuda",
+  "text": "a yellow dog",
+  "neg_text": "a green dog",
+  "clip_similarity_neg": 0.3248480260372162,
+  "clip_margin": -0.03512033820152283
+}

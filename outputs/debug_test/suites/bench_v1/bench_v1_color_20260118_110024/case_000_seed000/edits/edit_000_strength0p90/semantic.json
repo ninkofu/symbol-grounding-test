@@ -1,0 +1,15 @@
+{
+  "clip_similarity": 0.2805301249027252,
+  "crop_box": [
+    0,
+    0,
+    273,
+    512
+  ],
+  "model_id": "openai/clip-vit-base-patch32",
+  "device": "cuda",
+  "text": "a blue cat",
+  "neg_text": "a red cat",
+  "clip_similarity_neg": 0.2849680781364441,
+  "clip_margin": -0.004437953233718872
+}

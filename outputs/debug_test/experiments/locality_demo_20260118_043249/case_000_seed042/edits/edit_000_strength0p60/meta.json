@@ -1,0 +1,10 @@
+{
+  "base_prompt": "a red cat on a table",
+  "edit_prompt": "a blue cat",
+  "negative_prompt": null,
+  "target": "obj1",
+  "mask_pad_px": 8,
+  "mask_blur": 8.0,
+  "seed": 42,
+  "strength": 0.6
+}

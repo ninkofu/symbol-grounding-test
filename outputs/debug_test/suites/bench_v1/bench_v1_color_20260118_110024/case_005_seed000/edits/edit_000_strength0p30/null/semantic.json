@@ -1,0 +1,15 @@
+{
+  "clip_similarity": 0.24415135383605957,
+  "crop_box": [
+    0,
+    0,
+    273,
+    512
+  ],
+  "model_id": "openai/clip-vit-base-patch32",
+  "device": "cuda",
+  "text": "a white chair",
+  "neg_text": "a brown chair",
+  "clip_similarity_neg": 0.23588413000106812,
+  "clip_margin": 0.008267223834991455
+}

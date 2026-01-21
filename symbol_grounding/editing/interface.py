@@ -15,6 +15,7 @@ class EditRequest:
     edit_prompt: str = ""
     base_prompt: Optional[str] = None
     negative_prompt: Optional[str] = None
+    strength: float = 0.75
     seed: int = 0
     steps: int = 30
     guidance_scale: float = 7.5
