@@ -11,6 +11,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 from ..data.synthetic_shapes import SyntheticShapesConfig, SyntheticShapesDataset
+from ..data.image_folder import ImageFolderConfig, ImageFolderDataset
 from ..disentangled_vae import DisentangledVAE, DisentangledVAEConfig
 
 
@@ -33,7 +34,10 @@ def _collate_batch(batch: list[Dict[str, object]]) -> Dict[str, object]:
     return {"image": images, "labels": labels}
 
 
-def _labels_to_targets(labels: list[list[Dict[str, object]]], device: torch.device) -> Dict[str, torch.Tensor]:
+def _labels_to_targets(
+    labels: list[Optional[list[Dict[str, object]]]],
+    device: torch.device,
+) -> Optional[Dict[str, torch.Tensor]]:
     shape_ids = []
     color_ids = []
     bbox_targets = []
@@ -47,6 +51,8 @@ def _labels_to_targets(labels: list[list[Dict[str, object]]], device: torch.devi
         shape_ids.append(int(label["shape_idx"]))
         color_ids.append(int(label["color_idx"]))
         bbox_targets.append(list(label["bbox"]))
+    if not shape_ids:
+        return None
     return {
         "shape": torch.tensor(shape_ids, device=device, dtype=torch.long),
         "color": torch.tensor(color_ids, device=device, dtype=torch.long),
@@ -65,8 +71,15 @@ def evaluate(checkpoint_path: str, config_path: str, output_path: Optional[str] 
     model.load_state_dict(checkpoint["model_state"])
     model.eval()
 
-    data_cfg = SyntheticShapesConfig(**config.get("data", {}))
-    dataset = SyntheticShapesDataset(data_cfg)
+    data_type = config.get("data", {}).get("type", "synthetic")
+    if data_type == "synthetic":
+        data_cfg = SyntheticShapesConfig(**config.get("data", {}))
+        dataset = SyntheticShapesDataset(data_cfg)
+    elif data_type == "image_folder":
+        data_cfg = ImageFolderConfig(**config.get("data", {}))
+        dataset = ImageFolderDataset(data_cfg)
+    else:
+        raise ValueError(f"Unknown data.type: {data_type}")
     loader = DataLoader(
         dataset,
         batch_size=config.get("eval", {}).get("batch_size", 64),
@@ -80,6 +93,7 @@ def evaluate(checkpoint_path: str, config_path: str, output_path: Optional[str] 
     shape_correct = 0
     color_correct = 0
     pos_loss = 0.0
+    labeled = 0
 
     with torch.no_grad():
         for batch in loader:
@@ -90,19 +104,20 @@ def evaluate(checkpoint_path: str, config_path: str, output_path: Optional[str] 
             preds = model.predict_attributes(output["z"])
 
             recon_loss += F.mse_loss(output["recon"], images, reduction="sum").item()
-            pos_loss += F.mse_loss(preds["position"], labels["bbox"], reduction="sum").item()
-
-            shape_preds = preds["shape_logits"].argmax(dim=1)
-            color_preds = preds["color_logits"].argmax(dim=1)
-            shape_correct += (shape_preds == labels["shape"]).sum().item()
-            color_correct += (color_preds == labels["color"]).sum().item()
+            if labels is not None:
+                pos_loss += F.mse_loss(preds["position"], labels["bbox"], reduction="sum").item()
+                shape_preds = preds["shape_logits"].argmax(dim=1)
+                color_preds = preds["color_logits"].argmax(dim=1)
+                shape_correct += (shape_preds == labels["shape"]).sum().item()
+                color_correct += (color_preds == labels["color"]).sum().item()
+                labeled += images.size(0)
             total += images.size(0)
 
     metrics = {
         "recon_mse": recon_loss / (total * images.shape[1] * images.shape[2] * images.shape[3]),
-        "shape_accuracy": shape_correct / total,
-        "color_accuracy": color_correct / total,
-        "position_mse": pos_loss / (total * 4),
+        "shape_accuracy": shape_correct / labeled if labeled else None,
+        "color_accuracy": color_correct / labeled if labeled else None,
+        "position_mse": pos_loss / (labeled * 4) if labeled else None,
         "num_samples": float(total),
     }
 

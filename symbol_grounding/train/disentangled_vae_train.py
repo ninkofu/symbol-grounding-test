@@ -9,14 +9,10 @@ from typing import Any, Dict, Optional
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-
-try:
-    from PIL import Image  # type: ignore
-    _PIL_AVAILABLE = True
-except ImportError:  # pragma: no cover
-    _PIL_AVAILABLE = False
+from PIL import Image
 
 from ..data.synthetic_shapes import SyntheticShapesConfig, SyntheticShapesDataset
+from ..data.image_folder import ImageFolderConfig, ImageFolderDataset
 from ..disentangled_vae import DisentangledVAE, DisentangledVAEConfig, beta_vae_loss
 
 
@@ -40,8 +36,6 @@ def _tensor_to_pil(img: torch.Tensor) -> "Image.Image":
 
 
 def _save_recon(output_dir: str, step: int, originals: torch.Tensor, recons: torch.Tensor) -> None:
-    if not _PIL_AVAILABLE:
-        return
     os.makedirs(output_dir, exist_ok=True)
     orig = _tensor_to_pil(originals[0])
     recon = _tensor_to_pil(recons[0])
@@ -62,8 +56,7 @@ def _save_traversal(
     steps: int = 7,
     label: str = "shape",
 ) -> None:
-    if not _PIL_AVAILABLE:
-        return
+
     os.makedirs(output_dir, exist_ok=True)
     with torch.no_grad():
         z_base = z[0:1].clone()
@@ -84,11 +77,14 @@ def _save_traversal(
 
 def _collate_batch(batch: list[Dict[str, object]]) -> Dict[str, object]:
     images = torch.stack([item["image"] for item in batch], dim=0)
-    labels = [item["labels"] for item in batch]
+    labels = [item.get("labels") for item in batch]
     return {"image": images, "labels": labels}
 
 
-def _labels_to_targets(labels: list[list[Dict[str, object]]], device: torch.device) -> Dict[str, torch.Tensor]:
+def _labels_to_targets(
+    labels: list[Optional[list[Dict[str, object]]]],
+    device: torch.device,
+) -> Optional[Dict[str, torch.Tensor]]:
     shape_ids = []
     color_ids = []
     bbox_targets = []
@@ -102,6 +98,8 @@ def _labels_to_targets(labels: list[list[Dict[str, object]]], device: torch.devi
         shape_ids.append(int(label["shape_idx"]))
         color_ids.append(int(label["color_idx"]))
         bbox_targets.append(list(label["bbox"]))
+    if not shape_ids:
+        return None
     return {
         "shape": torch.tensor(shape_ids, device=device, dtype=torch.long),
         "color": torch.tensor(color_ids, device=device, dtype=torch.long),
@@ -116,13 +114,20 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
     torch.manual_seed(config.get("seed", 0))
 
     model_cfg = DisentangledVAEConfig(**config.get("model", {}))
-    data_cfg = SyntheticShapesConfig(**config.get("data", {}))
+    data_type = config.get("data", {}).get("type", "synthetic")
     train_cfg = config.get("train", {})
 
     model = DisentangledVAE(model_cfg).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=train_cfg.get("lr", 1e-4))
 
-    dataset = SyntheticShapesDataset(data_cfg)
+    if data_type == "synthetic":
+        data_cfg = SyntheticShapesConfig(**config.get("data", {}))
+        dataset = SyntheticShapesDataset(data_cfg)
+    elif data_type == "image_folder":
+        data_cfg = ImageFolderConfig(**config.get("data", {}))
+        dataset = ImageFolderDataset(data_cfg)
+    else:
+        raise ValueError(f"Unknown data.type: {data_type}")
     loader = DataLoader(
         dataset,
         batch_size=train_cfg.get("batch_size", 64),
@@ -155,17 +160,21 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
             loss_terms = beta_vae_loss(output["recon"], images, output["mu"], output["logvar"], beta=beta)
             preds = model.predict_attributes(output["z"])
 
-            shape_loss = F.cross_entropy(preds["shape_logits"], labels["shape"])
-            color_loss = F.cross_entropy(preds["color_logits"], labels["color"])
-            position_loss = F.mse_loss(preds["position"], labels["bbox"])
-
-            loss = (
-                loss_terms["loss"]
-                + shape_weight * shape_loss
-                + color_weight * color_loss
-                + position_weight * position_loss
-            )
-
+            if labels is not None:
+                shape_loss = F.cross_entropy(preds["shape_logits"], labels["shape"])
+                color_loss = F.cross_entropy(preds["color_logits"], labels["color"])
+                position_loss = F.mse_loss(preds["position"], labels["bbox"])
+                loss = (
+                    loss_terms["loss"]
+                    + shape_weight * shape_loss
+                    + color_weight * color_loss
+                    + position_weight * position_loss
+                )
+            else:
+                shape_loss = torch.tensor(0.0, device=device)
+                color_loss = torch.tensor(0.0, device=device)
+                position_loss = torch.tensor(0.0, device=device)
+                loss = loss_terms["loss"]
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

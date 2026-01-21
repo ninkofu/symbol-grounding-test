@@ -172,4 +172,9 @@ def generate_image(
         raise
 
 
-__all__ = ["DiffusionConfig", "generate_image"]
+def load_pipeline(config: DiffusionConfig):
+    """Public helper to load the configured diffusers pipeline."""
+    return _load_pipeline(config)
+
+
+__all__ = ["DiffusionConfig", "generate_image", "load_pipeline"]
