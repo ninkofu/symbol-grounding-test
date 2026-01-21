@@ -61,6 +61,25 @@ With uv:
 uv run -m symbol_grounding.scripts.generate_image --prompt "a red cat on a table" --output-dir outputs
 ```
 
+Run the System 2 symbolic pipeline (scene planning → layout → rendering):
+
+```
+python -m symbol_grounding.scripts.run_system2_pipeline \
+  --prompt "a lonely room with a table and a cat" \
+  --output-dir outputs
+```
+
+Example edits (move + attribute changes + attention locks):
+
+```
+python -m symbol_grounding.scripts.run_system2_pipeline \
+  --prompt "a lonely room with a flower on a table" \
+  --move obj1:0.1:0.0 \
+  --set-attr obj1:color=blue \
+  --lock-token table \
+  --output-dir outputs
+```
+
 Run the diffusers pipeline (GPU recommended, first run downloads model weights):
 
 ```
