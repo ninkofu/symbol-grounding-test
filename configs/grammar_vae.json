@@ -1,0 +1,32 @@
+{
+  "seed": 0,
+  "device": "auto",
+  "model": {
+    "image_size": 64,
+    "num_channels": 3,
+    "latent_dim": 48,
+    "noun_dim": 16,
+    "adj_dim": 16,
+    "verb_dim": 8,
+    "hidden_dim": 256,
+    "noun_classes": 3,
+    "adj_classes": 7
+  },
+  "data": {
+    "length": 10000,
+    "image_size": 64,
+    "min_objects": 2,
+    "max_objects": 4,
+    "seed": 0
+  },
+  "train": {
+    "batch_size": 32,
+    "epochs": 5,
+    "lr": 0.0001,
+    "beta": 1.0,
+    "cls_weight": 1.0,
+    "log_every": 50,
+    "sample_every": 200
+  },
+  "outputs_dir": "outputs/grammar_vae"
+}

@@ -282,6 +282,18 @@ python -m symbol_grounding.scripts.generate_grounded_diffusion \
   --out outputs/
 ```
 
+## LLM planner → grounded diffusion
+
+Use an LLM to produce a scene graph before layout + diffusion. If `OPENAI_API_KEY`
+is not set, the planner falls back to the rule-based parser.
+
+```
+python -m symbol_grounding.scripts.generate_llm_grounded_diffusion \
+  --prompt "a red cat on a table" \
+  --out outputs/ \
+  --llm-model gpt-4o-mini
+```
+
 ## Slot + Typed Slots + TPR pipeline
 
 Run the integration pipeline on random inputs to verify the module wiring:
@@ -423,6 +435,26 @@ uv run -m symbol_grounding.train.slot_ae_train --config configs/slot_ae.json
 ```
 
 Reconstruction samples and slot masks are saved under `outputs/slot_ae/samples/`.
+
+## Multimodal Slot Attention training (image + caption)
+
+Train a minimal multimodal Slot Attention model with text conditioning:
+
+```
+python -m symbol_grounding.train.multimodal_slot_ae_train --config configs/multimodal_slot_ae.json
+```
+
+Reconstruction samples are saved under `outputs/multimodal_slot_ae/samples/`.
+
+## Grammar VAE training (noun/adj/verb partitions)
+
+Train a grammar-aware VAE with noun/adjective/verb latent partitions:
+
+```
+python -m symbol_grounding.train.grammar_vae_train --config configs/grammar_vae.json
+```
+
+Reconstructions and checkpoints are written under `outputs/grammar_vae/`.
 
 ## Tests
 
