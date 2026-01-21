@@ -56,6 +56,7 @@ def _save_traversal(
     steps: int = 7,
     label: str = "shape",
 ) -> None:
+
     os.makedirs(output_dir, exist_ok=True)
     with torch.no_grad():
         z_base = z[0:1].clone()
@@ -174,7 +175,6 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
                 color_loss = torch.tensor(0.0, device=device)
                 position_loss = torch.tensor(0.0, device=device)
                 loss = loss_terms["loss"]
-
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
