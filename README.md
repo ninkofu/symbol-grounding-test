@@ -258,6 +258,7 @@ uv run -m symbol_grounding.scripts.eval_disentangled_vae \
   --out outputs/disentangled_vae/metrics.json
 ```
 
+
 ## Experiment harness
 
 Run a batch experiment from a JSON config:
