@@ -11,6 +11,7 @@ KNOWN_NOUNS = {
     "car", "bicycle", "cup", "mug", "apple", "laptop",
     "person", "human", "girl", "boy", "book",
     "plate", "road", "park", "wall", "room", "desk", "vase",
+    "lamp", "window", "letter", "envelope", "bed", "sofa", "rug",
 }
 
 COLOR_ADJECTIVES = {
@@ -19,6 +20,15 @@ COLOR_ADJECTIVES = {
 }
 
 SIZE_ADJECTIVES = {"big", "small", "large", "tiny", "huge"}
+
+ATTRIBUTE_ADJECTIVES = {
+    "withered": ("state", "withered"),
+    "dim": ("lighting", "dim"),
+    "dark": ("lighting", "dark"),
+    "scattered": ("arrangement", "scattered"),
+    "lonely": ("mood", "lonely"),
+    "empty": ("state", "empty"),
+}
 
 RELATION_PREDICATES = {"on", "under", "beside", "next to", "behind", "in front of"}
 
@@ -37,6 +47,8 @@ def parse_text(prompt: str) -> SceneGraph:
     i = 0
     while i < len(tokens):
         token = tokens[i]
+        bigram = " ".join(tokens[i:i + 2]) if i + 1 < len(tokens) else None
+        trigram = " ".join(tokens[i:i + 3]) if i + 2 < len(tokens) else None
 
         if token in COLOR_ADJECTIVES:
             current_attrs["color"] = token
@@ -44,6 +56,11 @@ def parse_text(prompt: str) -> SceneGraph:
             continue
         if token in SIZE_ADJECTIVES:
             current_attrs["size"] = token
+            i += 1
+            continue
+        if token in ATTRIBUTE_ADJECTIVES:
+            key, value = ATTRIBUTE_ADJECTIVES[token]
+            current_attrs[key] = value
             i += 1
             continue
 
@@ -55,16 +72,24 @@ def parse_text(prompt: str) -> SceneGraph:
             i += 1
             continue
 
-        if token in RELATION_PREDICATES:
+        predicate = None
+        if trigram and trigram in RELATION_PREDICATES:
+            predicate = trigram
+            i += 3
+        elif bigram and bigram in RELATION_PREDICATES:
+            predicate = bigram
+            i += 2
+        elif token in RELATION_PREDICATES:
+            predicate = token
+            i += 1
+        if predicate is not None:
             if objects and i + 1 < len(tokens):
                 subject_id = objects[-1].id
-                predicate = token
                 for j in range(i + 1, len(tokens)):
                     if tokens[j] in KNOWN_NOUNS:
                         provisional_id = f"unknown_{tokens[j]}_{j}"
                         relations.append((subject_id, predicate, provisional_id))
                         break
-            i += 1
             continue
 
         i += 1
