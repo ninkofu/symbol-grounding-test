@@ -151,12 +151,16 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
     position_weight = train_cfg.get("position_weight", 1.0)
 
     global_step = 0
+    last_batch_images: Optional[torch.Tensor] = None
+    last_output: Optional[Dict[str, torch.Tensor]] = None
     for epoch in range(epochs):
         for batch in loader:
             images = batch["image"].to(device)
             labels = _labels_to_targets(batch["labels"], device)
 
             output = model(images)
+            last_batch_images = images
+            last_output = output
             loss_terms = beta_vae_loss(output["recon"], images, output["mu"], output["logvar"], beta=beta)
             preds = model.predict_attributes(output["z"])
 
@@ -199,6 +203,14 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
                 cfg = model.config
                 _save_traversal(sample_dir, global_step, model, output["z"], 0, label="shape")
                 _save_traversal(sample_dir, global_step, model, output["z"], cfg.shape_dim, label="color")
+                _save_traversal(
+                    sample_dir,
+                    global_step,
+                    model,
+                    output["z"],
+                    cfg.shape_dim + cfg.color_dim,
+                    label="position",
+                )
 
             if global_step % save_every == 0:
                 os.makedirs(checkpoint_dir, exist_ok=True)
@@ -212,6 +224,20 @@ def train(config_path: str, output_dir: Optional[str] = None) -> None:
                 )
 
             global_step += 1
+
+    if last_batch_images is not None and last_output is not None:
+        _save_recon(sample_dir, global_step, last_batch_images, last_output["recon"])
+        cfg = model.config
+        _save_traversal(sample_dir, global_step, model, last_output["z"], 0, label="shape")
+        _save_traversal(sample_dir, global_step, model, last_output["z"], cfg.shape_dim, label="color")
+        _save_traversal(
+            sample_dir,
+            global_step,
+            model,
+            last_output["z"],
+            cfg.shape_dim + cfg.color_dim,
+            label="position",
+        )
 
     os.makedirs(checkpoint_dir, exist_ok=True)
     torch.save(
